@@ -1,3 +1,4 @@
+// Component for all bracket building logic and UI
 
 "use client";
 
@@ -21,7 +22,7 @@ type RatingsResponse =
       details?: string;
     };
 
-export default function Builder() {
+export default function Debug() {
   const [query, setQuery] = useState("/api/ratings?minRk=1&maxRk=25");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
@@ -74,6 +75,11 @@ export default function Builder() {
             <span className="font-medium"> /api/ratings</span>.
           </p>
         </div>
+        <h3>
+          {data?.ok === true
+            ? `Loaded ${data.meta.returnedTeams} teams (out of ${data.meta.totalTeams}) from CSV`
+            : "Failed to load team ratings"}
+        </h3>
 
         <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300">

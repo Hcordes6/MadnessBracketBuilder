@@ -1,3 +1,6 @@
+// This is a Next.js API route that reads a local CSV file containing team ratings and exposes it as JSON to the frontend.
+// The route supports query parameters for filtering and field selection, and can also return the raw CSV data.
+
 import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -10,18 +13,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // This route reads a local CSV file and exposes it to the frontend.
-//
-// Recommended workflow:
-// - Keep CSV parsing + normalization on the server (here or in a lib module)
-// - Return JSON to the client (client components should not parse CSV)
-// - Add caching once parsing is stable
-//
-// Query params you may want to support (add as you build):
-// - ?format=raw        -> return the raw CSV text (debugging)
-// - ?team=Michigan     -> return only a single team
-// - ?conf=B10          -> filter by conference
-// - ?minRk=1&maxRk=50  -> filter by rank range
-// - ?fields=Team,Conf  -> return only selected fields
+// TODO: Needs caching for performance
 
 type TeamRating = {
   // NOTE: Keep this minimal for now. Expand as you start relying on more fields.
@@ -38,6 +30,7 @@ type TeamRating = {
   raw: Record<string, string>;
 };
 
+// Helpers
 function toNumber(value: string | undefined): number | undefined {
   if (value == null) return undefined;
   const trimmed = value.trim();
