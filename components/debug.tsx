@@ -1,26 +1,26 @@
-// Component for all bracket building logic and UI
-
+// Component for JSON Debug view of /api/ratings response
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 
+// schema for expected JSON response from /api/ratings
 type RatingsResponse =
   | {
-      ok: true;
-      meta: {
-        csvPath: string;
-        headers: string[];
-        warnings: string[];
-        totalTeams: number;
-        returnedTeams: number;
-      };
-      teams: unknown[];
-    }
-  | {
-      ok: false;
-      error: string;
-      details?: string;
+    ok: true;
+    meta: {
+      csvPath: string;
+      headers: string[];
+      warnings: string[];
+      totalTeams: number;
+      returnedTeams: number;
     };
+    teams: unknown[];
+  }
+  | {
+    ok: false;
+    error: string;
+    details?: string;
+  };
 
 export default function Debug() {
   const [query, setQuery] = useState("/api/ratings?minRk=1&maxRk=25");
@@ -30,6 +30,7 @@ export default function Debug() {
   const [data, setData] = useState<RatingsResponse | null>(null);
   const [errorText, setErrorText] = useState<string | null>(null);
 
+  // format JSON 
   const pretty = useMemo(() => {
     if (!data) return "";
     try {
