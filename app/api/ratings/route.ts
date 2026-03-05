@@ -129,6 +129,7 @@ function resolveCsvPath(): string {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const format = url.searchParams.get("format") ?? "json";
+  const requireSeed = url.searchParams.get("requireSeed") === "1";
 
   let csvText: string;
   try {
@@ -164,8 +165,8 @@ export async function GET(request: Request) {
   const allTeams = parsed.rows
     .map(mapRowToTeamRating)
     .filter((t): t is TeamRating => t !== null)
-    // Only keep teams that have a valid seed parsed from the Team column.
-    .filter((t) => t.Seed != null);
+    // Optionally require a valid seed parsed from the Team column.
+    .filter((t) => (requireSeed ? t.Seed != null : true));
 
   // Filters (keep these simple while you build)
   const teamQuery = url.searchParams.get("team");
