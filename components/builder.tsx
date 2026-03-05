@@ -21,6 +21,15 @@ export default function Builder() {
     Luck: 0,
   });
   const [randomnessPct, setRandomnessPct] = useState(0);
+
+  // Applied values only change when the user presses Resimulate.
+  const [appliedWeightsPct, setAppliedWeightsPct] = useState<Record<StatKey, number>>({
+    NetRtg: 0,
+    ORtg: 100,
+    DRtg: 0,
+    Luck: 0,
+  });
+  const [appliedRandomnessPct, setAppliedRandomnessPct] = useState(0);
   const [simulationId, setSimulationId] = useState(1);
 
   const derived = useMemo(() => {
@@ -36,27 +45,27 @@ export default function Builder() {
     if (!fieldRes.ok) return { ok: false as const, error: fieldRes.error };
 
     const weights: Weights = {
-      NetRtg: (weightsPct.NetRtg ?? 0) / 100,
-      ORtg: (weightsPct.ORtg ?? 0) / 100,
-      DRtg: (weightsPct.DRtg ?? 0) / 100,
-      Luck: (weightsPct.Luck ?? 0) / 100,
+      NetRtg: (appliedWeightsPct.NetRtg ?? 0) / 100,
+      ORtg: (appliedWeightsPct.ORtg ?? 0) / 100,
+      DRtg: (appliedWeightsPct.DRtg ?? 0) / 100,
+      Luck: (appliedWeightsPct.Luck ?? 0) / 100,
     };
 
     const matches = buildAndSimulateBracket({
       field: fieldRes.field,
       stats: DEFAULT_STATS,
       weights,
-      randomness: Math.max(0, Math.min(1, randomnessPct / 100)),
+      randomness: Math.max(0, Math.min(1, appliedRandomnessPct / 100)),
       simulationId,
     });
 
     return { ok: true as const, matches, meta: data.meta };
-  }, [data, weightsPct, randomnessPct, simulationId]);
+  }, [data, appliedWeightsPct, appliedRandomnessPct, simulationId]);
 
   function SliderRow(props: { statKey: StatKey; label: string }) {
     const value = weightsPct[props.statKey] ?? 0;
     return (
-      <div className="flex flex-col gap-1" key={props.statKey}>
+      <div className="relative flex flex-col gap-1" key={props.statKey}>
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-blue-900">
             {props.label}
@@ -67,13 +76,19 @@ export default function Builder() {
           type="range"
           min={0}
           max={100}
-          value={value}
-          onChange={(e) =>
+          step={1}
+          defaultValue={value}
+          className="relative z-10 w-full cursor-pointer accent-blue-600 pointer-events-auto"
+          onInput={(e) => {
+            const nextValue = e.currentTarget.valueAsNumber;
             setWeightsPct((prev) => ({
               ...prev,
-              [props.statKey]: Number(e.target.value),
-            }))
-          }
+              [props.statKey]: nextValue,
+            }));
+          }}
+          onChange={() => {
+            // no-op: keep for React consistency; onInput does the work
+          }}
         />
       </div>
     );
@@ -104,7 +119,7 @@ export default function Builder() {
               <SliderRow key={s.key} statKey={s.key} label={s.label} />
             ))}
 
-            <div className="flex flex-col gap-1">
+            <div className="relative flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-blue-900">
                   Randomness
@@ -115,15 +130,24 @@ export default function Builder() {
                 type="range"
                 min={0}
                 max={100}
-                value={randomnessPct}
-                onChange={(e) => setRandomnessPct(Number(e.target.value))}
+                step={1}
+                defaultValue={randomnessPct}
+                className="relative z-10 w-full cursor-pointer accent-blue-600 pointer-events-auto"
+                onInput={(e) => setRandomnessPct(e.currentTarget.valueAsNumber)}
+                onChange={() => {
+                  // no-op: onInput does the work
+                }}
               />
             </div>
 
             <button
               type="button"
               className="mt-1 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
-              onClick={() => setSimulationId((n) => n + 1)}
+              onClick={() => {
+                setAppliedWeightsPct(weightsPct);
+                setAppliedRandomnessPct(randomnessPct);
+                setSimulationId((n) => n + 1);
+              }}
             >
               Resimulate
             </button>
