@@ -4,20 +4,12 @@
 
 import { useMemo, useState } from "react";
 
+import Bracket from "@/components/bracket";
 import { useRatings } from "@/lib/hooks/useRatings";
 import type { TeamRating } from "@/lib/types/ratings";
 import { buildField64 } from "@/lib/bracket/field";
 import { buildAndSimulateBracket } from "@/lib/bracket/bracket";
 import { DEFAULT_STATS, type StatKey, type Weights } from "@/lib/sim/scoring";
-
-import type { ReactElement } from "react";
-import type { Match as RTBMatch } from "@cm3tahkuh/react-tournament-brackets/dist/src/types";
-
-import {
-  SingleEliminationBracket,
-  Match,
-  SVGViewer,
-} from "@cm3tahkuh/react-tournament-brackets";
 
 export default function Builder() {
   const { status, data, errorText } = useRatings("/api/ratings");
@@ -66,10 +58,10 @@ export default function Builder() {
     return (
       <div className="flex flex-col gap-1" key={props.statKey}>
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className="text-sm font-medium text-blue-900">
             {props.label}
           </label>
-          <span className="text-sm text-gray-600 dark:text-gray-400">{value}%</span>
+          <span className="text-sm text-blue-700">{value}%</span>
         </div>
         <input
           type="range"
@@ -88,26 +80,24 @@ export default function Builder() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-black">
+    <div className="min-h-screen bg-white font-sans">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-8">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+          <h1 className="text-2xl font-bold text-blue-900">
             Madness Bracket Builder
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-blue-800">
             Use sliders to weight stats. Randomness blends results toward a coin-flip.
           </p>
         </div>
 
-        {errorText ? (
-          <p className="text-sm text-red-700 dark:text-red-400">{errorText}</p>
-        ) : null}
+        {errorText ? <p className="text-sm text-red-700">{errorText}</p> : null}
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
-          <div className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="flex flex-col gap-3 rounded-lg border border-blue-100 bg-white p-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Sliders</h2>
-              <span className="text-xs text-gray-600 dark:text-gray-400">Status: {status}</span>
+              <h2 className="text-sm font-semibold text-blue-900">Sliders</h2>
+              <span className="text-xs text-blue-700">Status: {status}</span>
             </div>
 
             {DEFAULT_STATS.map((s) => (
@@ -116,10 +106,10 @@ export default function Builder() {
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="text-sm font-medium text-blue-900">
                   Randomness
                 </label>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{randomnessPct}%</span>
+                <span className="text-sm text-blue-700">{randomnessPct}%</span>
               </div>
               <input
                 type="range"
@@ -132,46 +122,26 @@ export default function Builder() {
 
             <button
               type="button"
-              className="mt-1 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+              className="mt-1 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
               onClick={() => setSimulationId((n) => n + 1)}
             >
               Resimulate
             </button>
 
             {derived.ok ? (
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <p className="text-xs text-blue-700">
                 Using {derived.meta.totalTeams} rows from CSV.
               </p>
             ) : (
-              <p className="text-xs text-red-700 dark:text-red-400">{derived.error}</p>
+              <p className="text-xs text-red-700">{derived.error}</p>
             )}
           </div>
 
-          <div className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="rounded-lg border border-blue-100 bg-white p-3">
             {derived.ok ? (
-              <SingleEliminationBracket
-                matches={derived.matches as RTBMatch[]}
-                matchComponent={Match}
-                svgWrapper={({ children, bracketWidth, bracketHeight, startAt }: {
-                  children: ReactElement;
-                  bracketWidth: number;
-                  bracketHeight: number;
-                  startAt: number[];
-                }) => (
-                  <SVGViewer
-                    width={1200}
-                    height={800}
-                    bracketWidth={bracketWidth}
-                    bracketHeight={bracketHeight}
-                    startAt={startAt}
-                    scaleFactor={1}
-                  >
-                    {children}
-                  </SVGViewer>
-                )}
-              />
+              <Bracket matches={derived.matches} />
             ) : (
-              <div className="p-4 text-sm text-gray-700 dark:text-gray-300">Waiting for data...</div>
+              <div className="p-4 text-sm text-blue-800">Waiting for data...</div>
             )}
           </div>
         </div>
