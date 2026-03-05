@@ -19,6 +19,7 @@ type TeamRating = {
   // NOTE: Keep this minimal for now. Expand as you start relying on more fields.
   Rk: number;
   Team: string;
+  Seed?: number;
   Conf: string;
   "W-L": string;
   NetRtg?: number;
@@ -37,6 +38,21 @@ function toNumber(value: string | undefined): number | undefined {
   if (trimmed === "") return undefined;
   const n = Number(trimmed);
   return Number.isFinite(n) ? n : undefined;
+}
+
+function splitTeamAndSeed(teamRaw: string): { team: string; seed?: number } {
+  // CSV currently encodes seed as a trailing number in the Team column, e.g. "Duke 1".
+  // Only treat 1-16 as valid seeds so we don't accidentally strip years/other numbers.
+  const trimmed = teamRaw.trim();
+  const match = /^(.*)\s+(\d{1,2})$/.exec(trimmed);
+  if (!match) return { team: trimmed };
+
+  const team = (match[1] ?? "").trim();
+  const seed = Number(match[2]);
+  if (!team || !Number.isInteger(seed) || seed < 1 || seed > 16) {
+    return { team: trimmed };
+  }
+  return { team, seed };
 }
 
 function parseCsvSimple(csvText: string): {
@@ -75,9 +91,11 @@ function parseCsvSimple(csvText: string): {
 
 function mapRowToTeamRating(row: Record<string, string>): TeamRating | null {
   const rk = toNumber(row["Rk"]);
-  const team = row["Team"];
+  const teamRaw = row["Team"];
   const conf = row["Conf"];
   const wl = row["W-L"];
+
+  const { team, seed } = teamRaw ? splitTeamAndSeed(teamRaw) : { team: "" };
 
   // Skip malformed rows.
   if (!rk || !team || !conf || !wl) return null;
@@ -85,6 +103,7 @@ function mapRowToTeamRating(row: Record<string, string>): TeamRating | null {
   return {
     Rk: rk,
     Team: team,
+    Seed: seed,
     Conf: conf,
     "W-L": wl,
     NetRtg: toNumber(row["NetRtg"]),
@@ -144,7 +163,9 @@ export async function GET(request: Request) {
   const parsed = parseCsvSimple(csvText);
   const allTeams = parsed.rows
     .map(mapRowToTeamRating)
-    .filter((t): t is TeamRating => t !== null);
+    .filter((t): t is TeamRating => t !== null)
+    // Only keep teams that have a valid seed parsed from the Team column.
+    .filter((t) => t.Seed != null);
 
   // Filters (keep these simple while you build)
   const teamQuery = url.searchParams.get("team");
