@@ -17,10 +17,74 @@ export default function HowToPage() {
                 <section className="rounded-lg border border-blue-100 bg-white p-4">
                     <h2 className="text-sm font-semibold text-blue-900">Building your bracket</h2>
                     <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm text-blue-900">
-                        <li>Adjust the stat sliders to set how much each stat matters in this simulation. If a team has a better stat value in the given matchup, it will be favored in the simulation. Get creative with which stats you weight more heavily.</li>
+                        <li>
+                            Adjust the stat sliders to set how much each stat matters in this simulation. If a team has a better stat value in the given matchup, it will be favored in the simulation. Get creative with which stats you weight more heavily.
+
+                            <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 p-3">
+                                <div className="text-xs font-semibold text-blue-900">Example matchup</div>
+                                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <div className="rounded-md border border-blue-100 bg-white p-2">
+                                        <div className="text-[11px] font-semibold text-blue-900">Sliders</div>
+                                        <div className="mt-1 text-[11px] text-blue-800">
+                                            ORtg: <span className="font-semibold">100%</span> • All others: <span className="font-semibold">0%</span>
+                                        </div>
+                                        <div className="mt-1 text-[11px] text-blue-800">
+                                            Randomness: <span className="font-semibold">0%</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-md border border-blue-100 bg-white p-2">
+                                        <div className="text-[11px] font-semibold text-blue-900">How the pick is made</div>
+                                        <div className="mt-1 flex items-center justify-between gap-2 text-[11px] text-blue-800">
+                                            <span className="font-semibold text-blue-900">Duke</span>
+                                            <span className="rounded-full bg-blue-100 px-2 py-0.5">higher ORtg</span>
+                                        </div>
+                                        <div className="mt-1 flex items-center justify-between gap-2 text-[11px] text-blue-800">
+                                            <span className="font-semibold text-blue-900">McNeese St</span>
+                                            <span className="rounded-full bg-blue-100 px-2 py-0.5">lower ORtg</span>
+                                        </div>
+                                        <div className="mt-2 text-[11px] text-blue-900">
+                                            Result: <span className="font-semibold">Duke wins</span> (higher weighted score)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-2 text-[11px] text-blue-800">
+                                    This is a simplified illustration: with Randomness at 0%, the same weights produce the same winner for a given matchup.
+                                </div>
+                            </div>
+                        </li>
                         <li>
                             Set <span className="font-semibold">Randomness / Upset Factor</span> to blend results toward a
                             coin-flip. This will allow for more upsets and variability in the bracket. At 0% randomness, the same weights will always produce the same bracket.
+
+                            <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 p-3">
+                                <div className="text-xs font-semibold text-blue-900">Example upset (Randomness enabled)</div>
+                                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <div className="rounded-md border border-blue-100 bg-white p-2">
+                                        <div className="text-[11px] font-semibold text-blue-900">Sliders</div>
+                                        <div className="mt-1 text-[11px] text-blue-800">
+                                            ORtg: <span className="font-semibold">100%</span> • All others: <span className="font-semibold">0%</span>
+                                        </div>
+                                        <div className="mt-1 text-[11px] text-blue-800">
+                                            Randomness: <span className="font-semibold">35%</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-md border border-blue-100 bg-white p-2">
+                                        <div className="text-[11px] font-semibold text-blue-900">What can happen</div>
+                                        <div className="mt-1 text-[11px] text-blue-800">
+                                            Even if <span className="font-semibold text-blue-900">Duke</span> has the higher ORtg, Randomness nudges the probability toward 50/50.
+                                        </div>
+                                        <div className="mt-2 text-[11px] text-blue-900">
+                                            Result (one run): <span className="font-semibold">McNeese St wins</span> (an upset draw)
+                                        </div>
+                                        <div className="mt-1 text-[11px] text-blue-800">
+                                            Re-running can produce different outcomes when Randomness is above 0%.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </li>
                         <li>
                             Press <span className="font-semibold">Resimulate</span> to apply your changes and
