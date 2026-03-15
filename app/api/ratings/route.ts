@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import type { TeamRating } from "@/lib/types/ratings";
+
 // Ensures this route runs in the Node.js runtime (required for fs access).
 export const runtime = "nodejs";
 
@@ -14,22 +16,6 @@ export const dynamic = "force-dynamic";
 
 // This route reads a local CSV file and exposes it to the frontend.
 // TODO: Needs caching for performance
-
-type TeamRating = {
-  // NOTE: Keep this minimal for now. Expand as you start relying on more fields.
-  Rk: number;
-  Team: string;
-  Seed?: number;
-  Conf: string;
-  "W-L": string;
-  NetRtg?: number;
-  ORtg?: number;
-  DRtg?: number;
-  AdjT?: number;
-  Luck?: number;
-  // Raw row data can be useful while you iterate.
-  raw: Record<string, string>;
-};
 
 // Helpers
 function toNumber(value: string | undefined): number | undefined {
@@ -53,6 +39,19 @@ function splitTeamAndSeed(teamRaw: string): { team: string; seed?: number } {
     return { team: trimmed };
   }
   return { team, seed };
+}
+
+function computeWLRatio(wl: string): number | undefined {
+  // Input usually looks like "35-4".
+  const m = /^(\d+)\s*-\s*(\d+)$/.exec(wl.trim());
+  if (!m) return undefined;
+  const wins = Number(m[1]);
+  const losses = Number(m[2]);
+  if (!Number.isFinite(wins) || !Number.isFinite(losses)) return undefined;
+  if (wins < 0 || losses < 0) return undefined;
+  const total = wins + losses;
+  if (total <= 0) return undefined;
+  return wins / total;
 }
 
 function parseCsvSimple(csvText: string): {
@@ -111,6 +110,9 @@ function mapRowToTeamRating(row: Record<string, string>): TeamRating | null {
     DRtg: toNumber(row["DRtg"]),
     AdjT: toNumber(row["AdjT"]),
     Luck: toNumber(row["Luck"]),
+    SOSNetRtg: toNumber(row["SOSNetRtg"]),
+    NCSOSNetRtg: toNumber(row["NCSOSNetRtg"]),
+    WLRatio: computeWLRatio(wl),
     raw: row,
   };
 }

@@ -7,7 +7,15 @@ import type { TeamRating } from "@/lib/types/ratings";
 
 // Defining stats
 
-export type StatKey = "NetRtg" | "ORtg" | "DRtg" | "Luck";
+export type StatKey =
+  | "NetRtg"
+  | "ORtg"
+  | "DRtg"
+  | "AdjT"
+  | "Luck"
+  | "SOSNetRtg"
+  | "NCSOSNetRtg"
+  | "WLRatio";
 
 export type StatConfig = {
   key: StatKey;
@@ -20,7 +28,11 @@ export const DEFAULT_STATS: StatConfig[] = [
   { key: "NetRtg", label: "Net Rating", higherIsBetter: true },
   { key: "ORtg", label: "Offense (ORtg)", higherIsBetter: true },
   { key: "DRtg", label: "Defense (DRtg)", higherIsBetter: false },
+  { key: "AdjT", label: "Tempo (AdjT)", higherIsBetter: true },
   { key: "Luck", label: "Luck", higherIsBetter: true },
+  { key: "SOSNetRtg", label: "Strength of Schedule (SOS)", higherIsBetter: true },
+  { key: "NCSOSNetRtg", label: "Non-Conf SOS (NCSOS)", higherIsBetter: true },
+  { key: "WLRatio", label: "Win % (W/L)", higherIsBetter: true },
 ];
 
 export type Weights = Record<StatKey, number>; // 0..1

@@ -12,6 +12,10 @@ export type TeamRating = {
     DRtg?: number;
     AdjT?: number;
     Luck?: number;
+    SOSNetRtg?: number;
+    NCSOSNetRtg?: number;
+    // Derived from the "W-L" string as win percentage in [0,1].
+    WLRatio?: number;
     raw: Record<string, string>;
 };
 

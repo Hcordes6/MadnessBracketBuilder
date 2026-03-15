@@ -18,7 +18,11 @@ export default function Builder() {
     NetRtg: 0,
     ORtg: 100,
     DRtg: 0,
+    AdjT: 0,
     Luck: 0,
+    SOSNetRtg: 0,
+    NCSOSNetRtg: 0,
+    WLRatio: 0,
   });
   const [randomnessPct, setRandomnessPct] = useState(0);
 
@@ -27,7 +31,11 @@ export default function Builder() {
     NetRtg: 0,
     ORtg: 100,
     DRtg: 0,
+    AdjT: 0,
     Luck: 0,
+    SOSNetRtg: 0,
+    NCSOSNetRtg: 0,
+    WLRatio: 0,
   });
   const [appliedRandomnessPct, setAppliedRandomnessPct] = useState(0);
   const [simulationId, setSimulationId] = useState(1);
@@ -48,7 +56,11 @@ export default function Builder() {
       NetRtg: (appliedWeightsPct.NetRtg ?? 0) / 100,
       ORtg: (appliedWeightsPct.ORtg ?? 0) / 100,
       DRtg: (appliedWeightsPct.DRtg ?? 0) / 100,
+      AdjT: (appliedWeightsPct.AdjT ?? 0) / 100,
       Luck: (appliedWeightsPct.Luck ?? 0) / 100,
+      SOSNetRtg: (appliedWeightsPct.SOSNetRtg ?? 0) / 100,
+      NCSOSNetRtg: (appliedWeightsPct.NCSOSNetRtg ?? 0) / 100,
+      WLRatio: (appliedWeightsPct.WLRatio ?? 0) / 100,
     };
 
     const matches = buildAndSimulateBracket({
