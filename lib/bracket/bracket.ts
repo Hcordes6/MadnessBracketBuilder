@@ -5,7 +5,7 @@
 import type { TeamRating } from "@/lib/types/ratings";
 import type { BracketTeam, RegionId } from "@/lib/bracket/field";
 import type { StatConfig, Weights } from "@/lib/sim/scoring";
-import { computeRanges, winProbability } from "@/lib/sim/scoring";
+import { computeRanges, weightedTeamScore, winProbability } from "@/lib/sim/scoring";
 import { stableRandom01 } from "@/lib/sim/prng";
 
 import type {
@@ -38,14 +38,28 @@ function pickWinner(params: {
 }): { winner: TeamRating; pA: number } {
   const { matchId, teamA, teamB, stats, weights, randomness, simulationId, ranges } = params;
 
+  const r = Math.max(0, Math.min(1, randomness));
+
   const pA = winProbability({
     teamA,
     teamB,
     stats,
     weights,
     ranges,
-    randomness,
+    randomness: r,
   });
+
+  // If randomness is disabled, do NOT sample. Pick deterministically.
+  if (r === 0) {
+    const scoreA = weightedTeamScore({ team: teamA, stats, weights, ranges });
+    const scoreB = weightedTeamScore({ team: teamB, stats, weights, ranges });
+
+    if (scoreA === scoreB) {
+      return { winner: teamA.Rk <= teamB.Rk ? teamA : teamB, pA };
+    }
+
+    return { winner: scoreA > scoreB ? teamA : teamB, pA };
+  }
 
   const draw = stableRandom01(`${simulationId}:${String(matchId)}`);
   const winner = draw < pA ? teamA : teamB;
