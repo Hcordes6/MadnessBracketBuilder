@@ -1,14 +1,16 @@
-
+import Link from "next/link";
 
 export default function Header() {
   return (
-    <header className="flex items-center justify-between p-4 bg-zinc-100 dark:bg-zinc-900">
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200">March Madness Bracket Builder</h1>
-        <nav>
-            <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mx-2">Home</a>
-            <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mx-2">About</a>
-            <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mx-2">Contact</a>
-        </nav>
+    <header className="w-full border-b border-blue-100 bg-white">
+      <div className="mx-auto flex w-full max-w-none items-center justify-between px-6 py-4">
+        <h1 className="text-2xl font-bold text-blue-900 sm:text-2xl">
+          <Link href="/">
+            March Madness Bracket Builder
+          </Link>
+        </h1>
+        <nav />
+      </div>
     </header>
   );
 }

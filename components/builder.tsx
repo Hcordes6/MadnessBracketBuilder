@@ -3,6 +3,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 
 import Bracket from "@/components/bracket";
 import { useRatings } from "@/lib/hooks/useRatings";
@@ -110,9 +111,6 @@ export default function Builder() {
     <div className="min-h-screen bg-white font-sans">
       <div className="mx-auto flex w-full max-w-none flex-col gap-4 px-6 py-8">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold text-blue-900">
-            Madness Bracket Builder
-          </h1>
           <p className="text-sm text-blue-800">
             Use sliders to weight stats. Randomness blends results toward a coin-flip.
           </p>
@@ -155,17 +153,25 @@ export default function Builder() {
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <button
-                type="button"
-                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
-                onClick={() => {
-                  setAppliedWeightsPct(weightsPct);
-                  setAppliedRandomnessPct(randomnessPct);
-                  setSimulationId((n) => n + 1);
-                }}
-              >
-                Resimulate
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
+                  onClick={() => {
+                    setAppliedWeightsPct(weightsPct);
+                    setAppliedRandomnessPct(randomnessPct);
+                    setSimulationId((n) => n + 1);
+                  }}
+                >
+                  Resimulate
+                </button>
+                <Link
+                  href="/how-to"
+                  className="rounded-md border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                >
+                  How to use / Stats
+                </Link>
+              </div>
 
               {derived.ok ? (
                 <p className="text-xs text-blue-700">Using {derived.meta.totalTeams} rows from CSV.</p>
