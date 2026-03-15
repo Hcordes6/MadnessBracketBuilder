@@ -110,6 +110,16 @@ export default function Builder() {
   return (
     <div className="min-h-screen bg-white font-sans">
       <div className="mx-auto flex w-full max-w-none flex-col gap-4 px-6 py-8">
+        <div className="flex w-full items-center justify-center">
+          <Link
+            href="/how-to"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 sm:w-auto"
+          >
+            How to use and Stats explained
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+
         <div className="flex flex-col gap-1">
           <p className="text-sm text-blue-800">
             Use sliders to weight stats. Randomness blends results toward a coin-flip.
@@ -156,7 +166,7 @@ export default function Builder() {
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
+                  className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white cursor-pointer hover:bg-blue-700"
                   onClick={() => {
                     setAppliedWeightsPct(weightsPct);
                     setAppliedRandomnessPct(randomnessPct);
@@ -165,12 +175,6 @@ export default function Builder() {
                 >
                   Resimulate
                 </button>
-                <Link
-                  href="/how-to"
-                  className="rounded-md border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
-                >
-                  How to use / Stats
-                </Link>
               </div>
 
               {derived.ok ? (
