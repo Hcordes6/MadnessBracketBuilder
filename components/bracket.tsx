@@ -74,9 +74,9 @@ export default function Bracket(props: { matches: BracketMatch[] }) {
 	}, [props.matches]);
 
 	return (
-		<div className="w-full">
+		<div className="min-w-0 w-full">
 			<div
-				className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
+				className="flex min-w-0 w-full max-w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
 				style={{ WebkitOverflowScrolling: "touch" }}
 				aria-label="Bracket"
 			>
