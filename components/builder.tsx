@@ -15,9 +15,20 @@ import { DEFAULT_STATS, type StatKey, type Weights } from "@/lib/sim/scoring";
 export default function Builder() {
   const { status, data, errorText } = useRatings("/api/ratings");
 
+  const zeroWeightsPct: Record<StatKey, number> = {
+    NetRtg: 0,
+    ORtg: 0,
+    DRtg: 0,
+    AdjT: 0,
+    Luck: 0,
+    SOSNetRtg: 0,
+    NCSOSNetRtg: 0,
+    WLRatio: 0,
+  };
+
   const [weightsPct, setWeightsPct] = useState<Record<StatKey, number>>({
     NetRtg: 0,
-    ORtg: 100,
+    ORtg: 0,
     DRtg: 0,
     AdjT: 0,
     Luck: 0,
@@ -90,17 +101,14 @@ export default function Builder() {
           min={0}
           max={100}
           step={1}
-          defaultValue={value}
+          value={value}
           className="relative z-10 w-full cursor-pointer accent-blue-600 pointer-events-auto"
-          onInput={(e) => {
+          onChange={(e) => {
             const nextValue = e.currentTarget.valueAsNumber;
             setWeightsPct((prev) => ({
               ...prev,
               [props.statKey]: nextValue,
             }));
-          }}
-          onChange={() => {
-            // no-op: keep for React consistency; onInput does the work
           }}
         />
       </div>
@@ -143,7 +151,7 @@ export default function Builder() {
               <div className="relative flex flex-col gap-1">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium text-blue-900">
-                    Randomness
+                    Randomness / Upset Factor
                   </label>
                   <span className="text-sm text-blue-700">{randomnessPct}%</span>
                 </div>
@@ -152,12 +160,9 @@ export default function Builder() {
                   min={0}
                   max={100}
                   step={1}
-                  defaultValue={randomnessPct}
+                  value={randomnessPct}
                   className="relative z-10 w-full cursor-pointer accent-blue-600 pointer-events-auto"
-                  onInput={(e) => setRandomnessPct(e.currentTarget.valueAsNumber)}
-                  onChange={() => {
-                    // no-op: onInput does the work
-                  }}
+                  onChange={(e) => setRandomnessPct(e.currentTarget.valueAsNumber)}
                 />
               </div>
             </div>
@@ -174,6 +179,16 @@ export default function Builder() {
                   }}
                 >
                   Resimulate
+                </button>
+                <button
+                  type="button"
+                  className="rounded-md border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-900 cursor-pointer hover:bg-blue-50"
+                  onClick={() => {
+                    setWeightsPct(zeroWeightsPct);
+                    setRandomnessPct(0);
+                  }}
+                >
+                  Reset
                 </button>
               </div>
 

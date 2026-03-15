@@ -17,9 +17,9 @@ export default function HowToPage() {
                 <section className="rounded-lg border border-blue-100 bg-white p-4">
                     <h2 className="text-sm font-semibold text-blue-900">Building your bracket</h2>
                     <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm text-blue-900">
-                        <li>Adjust the stat sliders to set how much each stat matters in this simulation. Get creative with which stats you weight more heavily.</li>
+                        <li>Adjust the stat sliders to set how much each stat matters in this simulation. If a team has a better stat value in the given matchup, it will be favored in the simulation. Get creative with which stats you weight more heavily.</li>
                         <li>
-                            Set <span className="font-semibold">Randomness</span> to blend results toward a
+                            Set <span className="font-semibold">Randomness / Upset Factor</span> to blend results toward a
                             coin-flip. This will allow for more upsets and variability in the bracket. At 0% randomness, the same weights will always produce the same bracket.
                         </li>
                         <li>
