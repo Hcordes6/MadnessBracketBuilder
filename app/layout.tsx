@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import Header from "@/components/header";
 import { PostHogProvider } from "./providers";
+import PostHogPageView from "@/components/posthog-pageview";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +32,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <PostHogProvider>
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
           <Header />
           {children}
         </PostHogProvider>

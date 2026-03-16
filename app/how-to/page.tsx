@@ -1,4 +1,5 @@
 import Link from "next/link";
+import posthog from 'posthog-js'
 
 export default function HowToPage() {
     return (

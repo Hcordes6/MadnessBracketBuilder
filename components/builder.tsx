@@ -4,6 +4,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { usePostHog } from "posthog-js/react";
 
 import Bracket from "@/components/bracket";
 import { useRatings } from "@/lib/hooks/useRatings";
@@ -14,6 +15,7 @@ import { DEFAULT_STATS, type StatKey, type Weights } from "@/lib/sim/scoring";
 
 export default function Builder() {
   const { status, data, errorText } = useRatings("/api/ratings");
+  const posthog = usePostHog();
 
   const zeroWeightsPct: Record<StatKey, number> = {
     NetRtg: 0,
@@ -175,6 +177,10 @@ export default function Builder() {
                       type="button"
                       className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white cursor-pointer hover:bg-blue-700"
                       onClick={() => {
+                        posthog?.capture("builder_resimulate", {
+                          weightsPct,
+                          randomnessPct,
+                        });
                         setAppliedWeightsPct(weightsPct);
                         setAppliedRandomnessPct(randomnessPct);
                         setSimulationId((n) => n + 1);
@@ -186,6 +192,7 @@ export default function Builder() {
                       type="button"
                       className="rounded-md border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-900 cursor-pointer hover:bg-blue-50"
                       onClick={() => {
+                        posthog?.capture("builder_reset");
                         setWeightsPct(zeroWeightsPct);
                         setRandomnessPct(0);
                       }}

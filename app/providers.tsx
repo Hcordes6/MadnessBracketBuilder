@@ -2,16 +2,10 @@
 
 import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider } from 'posthog-js/react'
-import { useEffect } from 'react'
+import { initPostHog } from '@/lib/posthog/client'
+
+initPostHog()
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-      ui_host: 'https://us.posthog.com',
-      capture_pageview: 'history_change',
-    })
-  }, [])
-
   return <PHProvider client={posthog}>{children}</PHProvider>
 }
