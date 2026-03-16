@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { BracketMatch } from "@/lib/bracket/bracket";
 
@@ -49,6 +49,11 @@ function isWinnerFlag(value: unknown): boolean {
 }
 
 export default function Bracket(props: { matches: BracketMatch[] }) {
+	const scrollerRef = useRef<HTMLDivElement | null>(null);
+	const topScrollbarRef = useRef<HTMLDivElement | null>(null);
+	const syncingRef = useRef<"top" | "main" | null>(null);
+	const [contentWidth, setContentWidth] = useState(0);
+
 	const byRound = useMemo(() => {
 		const buckets = new Map<RoundKey, BracketMatch[]>();
 		for (const round of ROUND_ORDER) buckets.set(round, []);
@@ -73,9 +78,70 @@ export default function Bracket(props: { matches: BracketMatch[] }) {
 		return buckets;
 	}, [props.matches]);
 
+	useEffect(() => {
+		const el = scrollerRef.current;
+		if (!el) return;
+
+		const update = () => setContentWidth(el.scrollWidth);
+		update();
+
+		if (typeof ResizeObserver !== "undefined") {
+			const ro = new ResizeObserver(() => update());
+			ro.observe(el);
+			return () => ro.disconnect();
+		}
+
+		window.addEventListener("resize", update);
+		return () => window.removeEventListener("resize", update);
+	}, [props.matches]);
+
+	useEffect(() => {
+		const top = topScrollbarRef.current;
+		const main = scrollerRef.current;
+		if (!top || !main) return;
+
+		const onTopScroll = () => {
+			if (syncingRef.current === "main") {
+				syncingRef.current = null;
+				return;
+			}
+			syncingRef.current = "top";
+			main.scrollLeft = top.scrollLeft;
+		};
+
+		const onMainScroll = () => {
+			if (syncingRef.current === "top") {
+				syncingRef.current = null;
+				return;
+			}
+			syncingRef.current = "main";
+			top.scrollLeft = main.scrollLeft;
+		};
+
+		top.addEventListener("scroll", onTopScroll, { passive: true });
+		main.addEventListener("scroll", onMainScroll, { passive: true });
+
+		// Ensure both start aligned.
+		top.scrollLeft = main.scrollLeft;
+
+		return () => {
+			top.removeEventListener("scroll", onTopScroll);
+			main.removeEventListener("scroll", onMainScroll);
+		};
+	}, []);
+
 	return (
 		<div className="min-w-0 w-full">
 			<div
+				ref={topScrollbarRef}
+				className="mb-2 h-4 w-full overflow-x-auto overflow-y-hidden rounded-md border border-blue-100 bg-white"
+				style={{ WebkitOverflowScrolling: "touch" }}
+				aria-label="Bracket horizontal scroll"
+			>
+				<div style={{ width: contentWidth, height: 1 }} />
+			</div>
+			<div
+				ref={scrollerRef}
 				className="flex min-w-0 w-full max-w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
 				style={{ WebkitOverflowScrolling: "touch" }}
 				aria-label="Bracket"

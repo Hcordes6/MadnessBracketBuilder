@@ -137,78 +137,83 @@ export default function Builder() {
         {errorText ? <p className="text-sm text-red-700">{errorText}</p> : null}
 
         <div className="flex w-full flex-col gap-4">
-          <div className="flex flex-col gap-3 rounded-lg border border-blue-100 bg-white p-4">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-sm font-semibold text-blue-900">Sliders</h2>
-              <span className="text-xs text-blue-700">Status: {status}</span>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {DEFAULT_STATS.map((s) => (
-                <SliderRow key={s.key} statKey={s.key} label={s.label} />
-              ))}
-
-              <div className="relative flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-blue-900">
-                    Randomness / Upset Factor
-                  </label>
-                  <span className="text-sm text-blue-700">{randomnessPct}%</span>
+          <div className="min-w-0 w-full rounded-lg border border-blue-100 bg-white">
+            <div className="sticky top-0 z-20 rounded-t-lg border-b border-blue-100 bg-white p-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-sm font-semibold text-blue-900">Sliders</h2>
+                  <span className="text-xs text-blue-700">Status: {status}</span>
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={randomnessPct}
-                  className="relative z-10 w-full cursor-pointer accent-blue-600 pointer-events-auto"
-                  onChange={(e) => setRandomnessPct(e.currentTarget.valueAsNumber)}
-                />
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {DEFAULT_STATS.map((s) => (
+                    <SliderRow key={s.key} statKey={s.key} label={s.label} />
+                  ))}
+
+                  <div className="relative flex flex-col gap-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-blue-900">
+                        Randomness / Upset Factor
+                      </label>
+                      <span className="text-sm text-blue-700">{randomnessPct}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={randomnessPct}
+                      className="relative z-10 w-full cursor-pointer accent-blue-600 pointer-events-auto"
+                      onChange={(e) => setRandomnessPct(e.currentTarget.valueAsNumber)}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white cursor-pointer hover:bg-blue-700"
+                      onClick={() => {
+                        setAppliedWeightsPct(weightsPct);
+                        setAppliedRandomnessPct(randomnessPct);
+                        setSimulationId((n) => n + 1);
+                      }}
+                    >
+                      Resimulate
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-md border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-900 cursor-pointer hover:bg-blue-50"
+                      onClick={() => {
+                        setWeightsPct(zeroWeightsPct);
+                        setRandomnessPct(0);
+                      }}
+                    >
+                      Reset
+                    </button>
+                  </div>
+
+                  {derived.ok ? (
+                    <p className="text-xs text-blue-700">Using {derived.meta.totalTeams} rows from CSV.</p>
+                  ) : (
+                    <p className="text-xs text-red-700">{derived.error}</p>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white cursor-pointer hover:bg-blue-700"
-                  onClick={() => {
-                    setAppliedWeightsPct(weightsPct);
-                    setAppliedRandomnessPct(randomnessPct);
-                    setSimulationId((n) => n + 1);
-                  }}
-                >
-                  Resimulate
-                </button>
-                <button
-                  type="button"
-                  className="rounded-md border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-900 cursor-pointer hover:bg-blue-50"
-                  onClick={() => {
-                    setWeightsPct(zeroWeightsPct);
-                    setRandomnessPct(0);
-                  }}
-                >
-                  Reset
-                </button>
-              </div>
+            <div className="p-4">
+              <p className="mb-3 text-sm text-blue-800">
+                Note: Upset indicator shown is not based on seeds, but rather which team is favored according to the given statistics.
+              </p>
 
               {derived.ok ? (
-                <p className="text-xs text-blue-700">Using {derived.meta.totalTeams} rows from CSV.</p>
+                <Bracket matches={derived.matches} />
               ) : (
-                <p className="text-xs text-red-700">{derived.error}</p>
+                <div className="text-sm text-blue-800">Waiting for data...</div>
               )}
             </div>
-          </div>
-
-          <div className="min-w-0 w-full rounded-lg border border-blue-100 bg-white p-3">
-            <p className="mb-3 text-sm text-blue-800">
-              Note: Upset indicator shown is not based on seeds, but rather which team is favored according to the given statistics.
-            </p>
-            {derived.ok ? (
-              <Bracket matches={derived.matches} />
-            ) : (
-              <div className="p-4 text-sm text-blue-800">Waiting for data...</div>
-            )}
           </div>
         </div>
       </div>
