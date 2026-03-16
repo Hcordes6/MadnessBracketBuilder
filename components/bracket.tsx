@@ -110,8 +110,13 @@ export default function Bracket(props: { matches: BracketMatch[] }) {
 											className="rounded-md border border-blue-100 bg-white"
 											aria-label={m.name ?? "Match"}
 										>
-											<div className="px-2 py-1 text-[11px] font-medium text-blue-800">
-												{m.name ?? "Match"}
+											<div className="flex items-center justify-between gap-2 px-2 py-1 text-[11px] font-medium text-blue-800">
+												<span className="min-w-0 truncate">{m.name ?? "Match"}</span>
+												{m.meta?.upset ? (
+													<span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-900">
+														Upset
+													</span>
+												) : null}
 											</div>
 											<div className="border-t border-blue-100">
 												<TeamRow seed={a.seed} team={a.team} isWinner={aWin} />

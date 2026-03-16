@@ -201,6 +201,9 @@ export default function Builder() {
           </div>
 
           <div className="min-w-0 w-full rounded-lg border border-blue-100 bg-white p-3">
+            <p className="mb-3 text-sm text-blue-800">
+              Note: Upset indicator shown is not based on seeds, but rather which team is favored according to the given statistics.
+            </p>
             {derived.ok ? (
               <Bracket matches={derived.matches} />
             ) : (

@@ -14,7 +14,12 @@ import type {
   Participant as RTBParticipant,
 } from "@cm3tahkuh/react-tournament-brackets/dist/src/types";
 
-export type BracketMatch = RTBMatch;
+export type BracketMatch = RTBMatch & { meta?: BracketMatchMeta };
+
+export type BracketMatchMeta = {
+  // True when the simulated winner differs from the stats-only (randomness=0) winner.
+  upset?: boolean;
+};
 
 const REGION_PAIRINGS: Array<[number, number]> = [
   [1, 16],
@@ -36,10 +41,21 @@ function pickWinner(params: {
   randomness: number; // 0..1
   simulationId: number;
   ranges: ReturnType<typeof computeRanges>;
-}): { winner: TeamRating; pA: number } {
+}): { winner: TeamRating; pA: number; upset: boolean } {
   const { matchId, teamA, teamB, stats, weights, randomness, simulationId, ranges } = params;
 
   const r = Math.max(0, Math.min(1, randomness));
+
+  const expectedWinner = (() => {
+    const scoreA = weightedTeamScore({ team: teamA, stats, weights, ranges });
+    const scoreB = weightedTeamScore({ team: teamB, stats, weights, ranges });
+
+    if (scoreA === scoreB) {
+      return teamA.Rk <= teamB.Rk ? teamA : teamB;
+    }
+
+    return scoreA > scoreB ? teamA : teamB;
+  })();
 
   const pA = winProbability({
     teamA,
@@ -52,19 +68,13 @@ function pickWinner(params: {
 
   // If randomness is disabled, do NOT sample. Pick deterministically.
   if (r === 0) {
-    const scoreA = weightedTeamScore({ team: teamA, stats, weights, ranges });
-    const scoreB = weightedTeamScore({ team: teamB, stats, weights, ranges });
-
-    if (scoreA === scoreB) {
-      return { winner: teamA.Rk <= teamB.Rk ? teamA : teamB, pA };
-    }
-
-    return { winner: scoreA > scoreB ? teamA : teamB, pA };
+    return { winner: expectedWinner, pA, upset: false };
   }
 
   const draw = stableRandom01(`${simulationId}:${String(matchId)}`);
   const winner = draw < pA ? teamA : teamB;
-  return { winner, pA };
+  const upset = winner.Rk !== expectedWinner.Rk;
+  return { winner, pA, upset };
 }
 
 function toParticipant(team: BracketTeam, isWinner: boolean | undefined): RTBParticipant {
@@ -186,7 +196,7 @@ export function buildAndSimulateBracket(params: {
 
     // Simulate round of 64
     for (const item of r64) {
-      const { winner } = pickWinner({
+      const { winner, upset } = pickWinner({
         matchId: item.match.id,
         teamA: item.a.team,
         teamB: item.b.team,
@@ -200,6 +210,7 @@ export function buildAndSimulateBracket(params: {
       const aIsWinner = winner.Rk === item.a.team.Rk;
       item.winner = aIsWinner ? item.a : item.b;
       item.match.participants = [toParticipant(item.a, aIsWinner), toParticipant(item.b, !aIsWinner)];
+      item.match.meta = { upset };
       matches.push(item.match);
     }
 
@@ -209,7 +220,7 @@ export function buildAndSimulateBracket(params: {
       const left = r64[i * 2]!.winner!;
       const right = r64[i * 2 + 1]!.winner!;
 
-      const { winner } = pickWinner({
+      const { winner, upset } = pickWinner({
         matchId: r32[i]!.id,
         teamA: left.team,
         teamB: right.team,
@@ -224,6 +235,7 @@ export function buildAndSimulateBracket(params: {
       const w = leftIsWinner ? left : right;
       r32Winners.push(w);
       r32[i]!.participants = [toParticipant(left, leftIsWinner), toParticipant(right, !leftIsWinner)];
+      r32[i]!.meta = { upset };
       matches.push(r32[i]!);
     }
 
@@ -233,7 +245,7 @@ export function buildAndSimulateBracket(params: {
       const left = r32Winners[i * 2]!;
       const right = r32Winners[i * 2 + 1]!;
 
-      const { winner } = pickWinner({
+      const { winner, upset } = pickWinner({
         matchId: s16[i]!.id,
         teamA: left.team,
         teamB: right.team,
@@ -248,6 +260,7 @@ export function buildAndSimulateBracket(params: {
       const w = leftIsWinner ? left : right;
       s16Winners.push(w);
       s16[i]!.participants = [toParticipant(left, leftIsWinner), toParticipant(right, !leftIsWinner)];
+      s16[i]!.meta = { upset };
       matches.push(s16[i]!);
     }
 
@@ -256,7 +269,7 @@ export function buildAndSimulateBracket(params: {
       const left = s16Winners[0]!;
       const right = s16Winners[1]!;
 
-      const { winner } = pickWinner({
+      const { winner, upset } = pickWinner({
         matchId: e8.id,
         teamA: left.team,
         teamB: right.team,
@@ -270,6 +283,7 @@ export function buildAndSimulateBracket(params: {
       const leftIsWinner = winner.Rk === left.team.Rk;
       const champ = leftIsWinner ? left : right;
       e8.participants = [toParticipant(left, leftIsWinner), toParticipant(right, !leftIsWinner)];
+  e8.meta = { upset };
       matches.push(e8);
 
       regionChamps.push({ region, champ });
@@ -315,7 +329,7 @@ export function buildAndSimulateBracket(params: {
   const champ3 = regionChamps.find((c) => c.region === 3)!.champ;
 
   const semiWinnerA = (() => {
-    const { winner } = pickWinner({
+    const { winner, upset } = pickWinner({
       matchId: semi1.id,
       teamA: champ0.team,
       teamB: champ1.team,
@@ -327,12 +341,13 @@ export function buildAndSimulateBracket(params: {
     });
     const aIsWinner = winner.Rk === champ0.team.Rk;
     semi1.participants = [toParticipant(champ0, aIsWinner), toParticipant(champ1, !aIsWinner)];
+    semi1.meta = { upset };
     matches.push(semi1);
     return aIsWinner ? champ0 : champ1;
   })();
 
   const semiWinnerB = (() => {
-    const { winner } = pickWinner({
+    const { winner, upset } = pickWinner({
       matchId: semi2.id,
       teamA: champ2.team,
       teamB: champ3.team,
@@ -344,12 +359,13 @@ export function buildAndSimulateBracket(params: {
     });
     const aIsWinner = winner.Rk === champ2.team.Rk;
     semi2.participants = [toParticipant(champ2, aIsWinner), toParticipant(champ3, !aIsWinner)];
+    semi2.meta = { upset };
     matches.push(semi2);
     return aIsWinner ? champ2 : champ3;
   })();
 
   {
-    const { winner } = pickWinner({
+    const { winner, upset } = pickWinner({
       matchId: final.id,
       teamA: semiWinnerA.team,
       teamB: semiWinnerB.team,
@@ -361,6 +377,7 @@ export function buildAndSimulateBracket(params: {
     });
     const aIsWinner = winner.Rk === semiWinnerA.team.Rk;
     final.participants = [toParticipant(semiWinnerA, aIsWinner), toParticipant(semiWinnerB, !aIsWinner)];
+    final.meta = { upset };
     matches.push(final);
   }
 
