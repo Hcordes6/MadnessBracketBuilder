@@ -283,7 +283,7 @@ export function buildAndSimulateBracket(params: {
       const leftIsWinner = winner.Rk === left.team.Rk;
       const champ = leftIsWinner ? left : right;
       e8.participants = [toParticipant(left, leftIsWinner), toParticipant(right, !leftIsWinner)];
-  e8.meta = { upset };
+        e8.meta = { upset };
       matches.push(e8);
 
       regionChamps.push({ region, champ });
@@ -322,46 +322,52 @@ export function buildAndSimulateBracket(params: {
   semi1.nextMatchId = final.id;
   semi2.nextMatchId = final.id;
 
-  // Region champs are in order region 0..3
-  const champ0 = regionChamps.find((c) => c.region === 0)!.champ;
-  const champ1 = regionChamps.find((c) => c.region === 1)!.champ;
-  const champ2 = regionChamps.find((c) => c.region === 2)!.champ;
-  const champ3 = regionChamps.find((c) => c.region === 3)!.champ;
+  // Region ids: 0=East, 1=West, 2=South, 3=Midwest
+  const champEast = regionChamps.find((c) => c.region === 0)!.champ;
+  const champWest = regionChamps.find((c) => c.region === 1)!.champ;
+  const champSouth = regionChamps.find((c) => c.region === 2)!.champ;
+  const champMidwest = regionChamps.find((c) => c.region === 3)!.champ;
 
   const semiWinnerA = (() => {
     const { winner, upset } = pickWinner({
       matchId: semi1.id,
-      teamA: champ0.team,
-      teamB: champ1.team,
+      teamA: champWest.team,
+      teamB: champMidwest.team,
       stats,
       weights,
       randomness,
       simulationId,
       ranges,
     });
-    const aIsWinner = winner.Rk === champ0.team.Rk;
-    semi1.participants = [toParticipant(champ0, aIsWinner), toParticipant(champ1, !aIsWinner)];
+    const aIsWinner = winner.Rk === champWest.team.Rk;
+    semi1.participants = [
+      toParticipant(champWest, aIsWinner),
+      toParticipant(champMidwest, !aIsWinner),
+    ];
     semi1.meta = { upset };
     matches.push(semi1);
-    return aIsWinner ? champ0 : champ1;
+    return aIsWinner ? champWest : champMidwest;
   })();
 
   const semiWinnerB = (() => {
     const { winner, upset } = pickWinner({
       matchId: semi2.id,
-      teamA: champ2.team,
-      teamB: champ3.team,
+      teamA: champEast.team,
+      teamB: champSouth.team,
       stats,
       weights,
       randomness,
       simulationId,
       ranges,
     });
-    const aIsWinner = winner.Rk === champ2.team.Rk;
-    semi2.participants = [toParticipant(champ2, aIsWinner), toParticipant(champ3, !aIsWinner)];
+    const aIsWinner = winner.Rk === champEast.team.Rk;
+    semi2.participants = [
+      toParticipant(champEast, aIsWinner),
+      toParticipant(champSouth, !aIsWinner),
+    ];
     semi2.meta = { upset };
     matches.push(semi2);
-    return aIsWinner ? champ2 : champ3;
+    return aIsWinner ? champEast : champSouth;
   })();
 
   {
