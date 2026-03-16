@@ -138,7 +138,7 @@ export default function Builder() {
 
         <div className="flex w-full flex-col gap-4">
           <div className="min-w-0 w-full rounded-lg border border-blue-100 bg-white">
-            <div className="sticky top-0 z-20 rounded-t-lg border-b border-blue-100 bg-white p-4">
+            <div className="rounded-t-lg border-b border-blue-100 bg-white p-4 sm:sticky sm:top-0 sm:z-20">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="text-sm font-semibold text-blue-900">Sliders</h2>
