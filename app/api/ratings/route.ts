@@ -119,13 +119,13 @@ function mapRowToTeamRating(row: Record<string, string>): TeamRating | null {
 
 function resolveCsvPath(): string {
   // TODO: If you want the CSV path configurable per environment, set:
-  // KENPOM_CSV_PATH=c:/dev/Personal/MadnessBracketBuilder/api/data(2-28).csv
+  // KENPOM_CSV_PATH=c:/dev/Personal/MadnessBracketBuilder/api/data/KenpomStatsFinal.csv
   const fromEnv = process.env.KENPOM_CSV_PATH;
   if (fromEnv) return fromEnv;
 
   // Default: points at your current repo file.
   // TODO: Consider renaming the file to something stable like `api/kenpom.csv`.
-  return path.join(process.cwd(), "api", "data", "data(2-28).csv");
+  return path.join(process.cwd(), "api", "data", "KenpomStatsFinal.csv");
 }
 
 export async function GET(request: Request) {

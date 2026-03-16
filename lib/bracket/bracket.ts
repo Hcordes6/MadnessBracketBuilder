@@ -7,6 +7,7 @@ import type { BracketTeam, RegionId } from "@/lib/bracket/field";
 import type { StatConfig, Weights } from "@/lib/sim/scoring";
 import { computeRanges, weightedTeamScore, winProbability } from "@/lib/sim/scoring";
 import { stableRandom01 } from "@/lib/sim/prng";
+import { REGION_LABEL_BY_ID } from "@/lib/bracket/tournament2026";
 
 import type {
   Match as RTBMatch,
@@ -75,7 +76,7 @@ function toParticipant(team: BracketTeam, isWinner: boolean | undefined): RTBPar
 }
 
 function regionName(region: RegionId): string {
-  return ["Region A", "Region B", "Region C", "Region D"][region] ?? `Region ${region + 1}`;
+  return REGION_LABEL_BY_ID[region] ?? `Region ${region + 1}`;
 }
 
 function getTeamBySeed(regionTeams: BracketTeam[], seed: number): BracketTeam {
