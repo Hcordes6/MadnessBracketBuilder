@@ -13,6 +13,33 @@ import { buildField64 } from "@/lib/bracket/field";
 import { buildAndSimulateBracket } from "@/lib/bracket/bracket";
 import { DEFAULT_STATS, type StatKey, type Weights } from "@/lib/sim/scoring";
 
+function SliderRow(props: {
+  statKey: StatKey;
+  label: string;
+  value: number;
+  onChange: (statKey: StatKey, value: number) => void;
+}) {
+  return (
+    <div className="relative flex flex-col gap-1">
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-medium text-blue-900">
+          {props.label}
+        </label>
+        <span className="text-sm text-blue-700">{props.value}%</span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        step={1}
+        value={props.value}
+        className="relative z-10 w-full cursor-pointer accent-blue-600 pointer-events-auto"
+        onChange={(e) => props.onChange(props.statKey, e.currentTarget.valueAsNumber)}
+      />
+    </div>
+  );
+}
+
 export default function Builder() {
   const { status, data, errorText } = useRatings("/api/ratings");
   const posthog = usePostHog();
@@ -88,35 +115,6 @@ export default function Builder() {
     return { ok: true as const, matches, meta: data.meta };
   }, [data, appliedWeightsPct, appliedRandomnessPct, simulationId]);
 
-  function SliderRow(props: { statKey: StatKey; label: string }) {
-    const value = weightsPct[props.statKey] ?? 0;
-    return (
-      <div className="relative flex flex-col gap-1" key={props.statKey}>
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-blue-900">
-            {props.label}
-          </label>
-          <span className="text-sm text-blue-700">{value}%</span>
-        </div>
-        <input
-          type="range"
-          min={0}
-          max={100}
-          step={1}
-          value={value}
-          className="relative z-10 w-full cursor-pointer accent-blue-600 pointer-events-auto"
-          onChange={(e) => {
-            const nextValue = e.currentTarget.valueAsNumber;
-            setWeightsPct((prev) => ({
-              ...prev,
-              [props.statKey]: nextValue,
-            }));
-          }}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white font-sans">
       <div className="mx-auto flex w-full max-w-none flex-col gap-4 px-6 py-8">
@@ -149,7 +147,18 @@ export default function Builder() {
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {DEFAULT_STATS.map((s) => (
-                    <SliderRow key={s.key} statKey={s.key} label={s.label} />
+                    <SliderRow
+                      key={s.key}
+                      statKey={s.key}
+                      label={s.label}
+                      value={weightsPct[s.key] ?? 0}
+                      onChange={(statKey, value) => {
+                        setWeightsPct((prev) => ({
+                          ...prev,
+                          [statKey]: value,
+                        }));
+                      }}
+                    />
                   ))}
 
                   <div className="relative flex flex-col gap-1">
